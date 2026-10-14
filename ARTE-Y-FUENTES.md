@@ -1,0 +1,5 @@
+# Assets generados con ImageGen integrado
+
+Chef: referencia de identidad Captura J.png, estilo de Captura ejemplo juego.png. Pixel art retro detallado 32 bits, retrato reconocible con flequillo negro, puntas burdeos y pañuelo rojo, camiseta negra y delantal crema. Cocina italiana con horno de ladrillo, cobre y hierbas, tonos ciruela y ámbar; centro de mesa despejado para la pizza del juego. Sin textos ni logo generado: marca original compuesta por código para preservar definición. Generación integrada, no CLI. Original conservado en .codex/generated_images/01a11be2-c81f-74d3-9219-0f5547a614e7/exec-f3e2f7fb-696f-40d9-95fc-bf62e8d5dabf.png. Asset: public/assets/chef-cocina-retro.webp.
+
+Postal: ilustración de viaje vintage refinada de la bahía de Nápoles, Vesubio y Castel dell’Ovo al atardecer; mesa con pizza Margherita, albahaca, tomates y aceite; sin texto generado. Reseña investigada y logo original añadidos por canvas, en seis idiomas. Generación integrada, no CLI. Original .codex/generated_images/01a11be2-c81f-74d3-9219-0f5547a614e7/exec-b6d8dbb8-898f-4fe2-8ca5-163c16dcd4ce.png. Asset: public/assets/postal-napoles.webp.

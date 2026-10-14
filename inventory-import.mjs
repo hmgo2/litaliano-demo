@@ -1,0 +1,45 @@
+import ExcelJS from 'exceljs';
+import {randomUUID,createHash} from 'node:crypto';
+const fail=(message,status=400)=>{throw Object.assign(Error(message),{status});};
+const clean=v=>String(v??'').trim();
+const key=v=>clean(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+export const columns=['Código','Nombre','Unidad','Existencia','Mínimo','Costo unitario'];
+const aliases={codigo:'id',id:'id',nombre:'name',materiaprima:'name',unidad:'unit',unidadbase:'unit',existencia:'stock',stock:'stock',minimo:'minimum',stockminimo:'minimum',costounitario:'unitCost',costoclp:'unitCost'};
+export const fingerprint=materials=>createHash('sha256').update(JSON.stringify(materials)).digest('hex');
+export function parseCSV(input){
+ const text=input.replace(/^\uFEFF/,'');const head=text.split(/\r?\n/,1)[0];const delimiter=head.includes(';')?';':',';const rows=[];let row=[],cell='',quoted=false;
+ for(let i=0;i<text.length;i++){const c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++;}else if(quoted||!cell)quoted=!quoted;else fail('Comillas inválidas en CSV.');}else if(c===delimiter&&!quoted){row.push(cell);cell='';}else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&text[i+1]==='\n')i++;row.push(cell);rows.push(row);row=[];cell='';}else cell+=c;if(rows.length>1001||row.length>20)fail('Máximo 1.000 filas y 20 columnas.');}
+ if(quoted)fail('CSV con comillas sin cerrar.');if(cell||row.length){row.push(cell);rows.push(row);}return rows;
+}
+function checkZip(buffer){let entries=0,total=0;for(let at=0;at<buffer.length-46;at++){if(buffer.readUInt32LE(at)!==0x02014b50)continue;entries++;total+=buffer.readUInt32LE(at+24);if(entries>500||total>12*1024*1024)fail('El Excel descomprimido supera el tamaño permitido.');}if(!entries)fail('El archivo no es un XLSX válido.');}
+export async function readInventoryFile(filename,base64){
+ if(typeof base64!=='string'||!base64.length||base64.length>2800000||base64.length%4||!/^[A-Za-z0-9+/]*={0,2}$/.test(base64))fail('Archivo vacío, demasiado grande o codificación inválida.');
+ const buffer=Buffer.from(base64,'base64');if(buffer.length>2*1024*1024)fail('Máximo 2 MB por archivo.');
+ if(/\.csv$/i.test(filename)){try{return parseCSV(new TextDecoder('utf-8',{fatal:true}).decode(buffer));}catch(e){if(e.status)throw e;fail('Guarda el CSV con codificación UTF-8.');}}
+ if(!/\.xlsx$/i.test(filename))fail('Selecciona un archivo .xlsx o .csv.');checkZip(buffer);
+ try{const book=new ExcelJS.Workbook();await book.xlsx.load(buffer);const sheet=book.worksheets.find(s=>s.name==='Inventario')||book.worksheets[0];if(!sheet||sheet.rowCount>1001||sheet.columnCount>20)fail('Máximo 1.000 filas y 20 columnas en la hoja Inventario.');const rows=[];sheet.eachRow({includeEmpty:true},row=>{rows.push(Array.from({length:sheet.columnCount},(_,i)=>{const cell=row.getCell(i+1);return typeof cell.value==='object'&&cell.value!==null?{invalid:true}:cell.value??'';}));});return rows;}catch(e){if(e.status)throw e;fail('No se pudo leer el Excel. Usa la plantilla XLSX, sin fórmulas ni celdas combinadas.');}
+}
+function number(v,label,errors){const s=clean(v);if(!/^(?:\d+(?:[.,]\d{1,4})?)$/.test(s)){errors.push(label+': usa un número no negativo con hasta 4 decimales, sin separador de miles.');return 0;}const n=Number(s.replace(',','.'));if(!Number.isFinite(n)||n>1e9)errors.push(label+': valor fuera de rango.');return n;}
+export function previewInventory(rows,materials,reserved={},mode='create'){
+ if(!['create','update','merge'].includes(mode))fail('Selecciona crear, actualizar o ambas acciones.');
+ rows.forEach((r,i)=>r.sourceRow=i+1);rows=rows.filter(r=>r.some(v=>clean(v)!==''));if(rows.length<2||rows.length>1001)fail('El archivo debe tener encabezados y entre 1 y 1.000 materias primas.');
+ const headers=rows[0].map(v=>aliases[key(v)]);for(const required of ['name','unit','stock','minimum','unitCost'])if(!headers.includes(required))fail('Falta columna '+({name:'Nombre',unit:'Unidad',stock:'Existencia',minimum:'Mínimo',unitCost:'Costo unitario'}[required]));
+ if(headers.filter(Boolean).some((h,i,a)=>a.indexOf(h)!==i))fail('Hay columnas repetidas.');
+ const seenIds=new Set(),seenNames=new Set();const result=rows.slice(1).map((values,index)=>{
+  const errors=[],raw={};headers.forEach((h,i)=>{if(h)raw[h]=values[i]??'';});if(values.some(v=>typeof v==='object'&&v!==null))errors.push('Solo valores: elimina fórmulas, enlaces y formatos de celda complejos.');
+  const name=clean(raw.name),code=clean(raw.id),unit=clean(raw.unit).toLowerCase();if(!name||name.length>160||/^[=+@]/.test(name))errors.push('Nombre obligatorio, máximo 160 caracteres, sin fórmulas.');if(code&&!/^[A-Za-z0-9_-]{1,100}$/.test(code))errors.push('Código: solo letras, números, guion o guion bajo.');if(!['g','ml','unidad'].includes(unit))errors.push('Unidad válida: g, ml o unidad. Convierte kg/l antes de importar.');
+  const stock=number(raw.stock,'Existencia',errors),minimum=number(raw.minimum,'Mínimo',errors),unitCost=number(raw.unitCost,'Costo unitario',errors);
+  const matches=materials.filter(m=>key(m.name)===key(name));const existing=code?materials.find(m=>m.id===code):matches.length===1?matches[0]:null;
+  if(matches.length>1&&!code)errors.push('Nombre ambiguo: identifica la materia prima con su código.');if(code&&!existing&&matches.length)errors.push('El nombre ya existe con otro código.');if(existing&&matches.some(m=>m.id!==existing.id))errors.push('El nombre pertenece a otra materia prima.');
+  const action=existing?'update':'create',id=existing?.id||code||randomUUID();if(mode==='create'&&existing)errors.push('Ya existe: elige Actualizar o Crear y actualizar.');if(mode==='update'&&!existing)errors.push('No existe: elige Crear o Crear y actualizar.');if(existing&&existing.unit!==unit)errors.push('No se puede cambiar la unidad base de una materia prima existente.');if(stock<(reserved[id]||0))errors.push('Existencia inferior a la cantidad reservada por pedidos.');
+  if(seenIds.has(id)||seenNames.has(key(name)))errors.push('Materia prima duplicada dentro del archivo.');seenIds.add(id);seenNames.add(key(name));
+  return{row:values.sourceRow,id,name,unit,stock,minimum,unitCost,action,previous:existing?{stock:existing.stock,minimum:existing.minimum,unitCost:existing.unitCost}:null,errors};
+ });return{rows:result,valid:result.every(r=>!r.errors.length),created:result.filter(r=>r.action==='create').length,updated:result.filter(r=>r.action==='update').length};
+}
+export function applyInventory(db,preview,reserved,user,reason){
+ if(!preview.valid||preview.rows.some(r=>r.errors.length))fail('Corrige todas las filas antes de importar.');if(!clean(reason)||clean(reason).length>400)fail('Indica un motivo para la carga, máximo 400 caracteres.');
+ for(const r of preview.rows){if(r.stock<(reserved[r.id]||0))fail('El stock reservado cambió. Revisa de nuevo el archivo.',409);const m=db.materials.find(m=>m.id===r.id);if((r.action==='update'&&!m)||(r.action==='create'&&m))fail('El inventario cambió. Revisa de nuevo el archivo.',409);}
+ const at=new Date().toISOString(),batchId=randomUUID();for(const r of preview.rows){let m=db.materials.find(m=>m.id===r.id);const before=m?{...m}:null;if(!m){m={id:r.id,stock:0};db.materials.push(m);}Object.assign(m,{name:r.name,unit:r.unit,stock:r.stock,minimum:r.minimum,unitCost:r.unitCost,demo:false});db.movements.push({id:randomUUID(),batchId,at,materialId:m.id,name:m.name,unit:m.unit,qty:Math.round((m.stock-(before?.stock||0))*10000)/10000,unitCost:m.unitCost,previous:before,reason:'Importación: '+clean(reason),userId:user.id,userName:user.name});}
+ return{ok:true,batchId,created:preview.created,updated:preview.updated};
+}
+export async function inventoryTemplate(materials=[]){const book=new ExcelJS.Workbook();const sheet=book.addWorksheet('Inventario');sheet.addRow(columns);for(const m of materials)sheet.addRow([m.id,m.name,m.unit,m.stock,m.minimum,m.unitCost]);sheet.columns.forEach((c,i)=>c.width=[38,28,14,18,18,22][i]);sheet.getRow(1).font={bold:true,color:{argb:'FFFFFFFF'}};sheet.getRow(1).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF7B2F22'}};sheet.views=[{state:'frozen',ySplit:1}];sheet.autoFilter={from:'A1',to:'F'+Math.max(1,sheet.rowCount)};for(const c of ['D','E','F'])sheet.getColumn(c).numFmt='0.####';const info=book.addWorksheet('Instrucciones');for(const line of ['Importación de inventario · L’Italiano','Completa la hoja Inventario. No importa esta hoja de instrucciones.','Código opcional al crear. Al actualizar, conserva el código exportado.','Unidades base: g, ml, unidad. No uses kg o litros.','Existencia es el saldo final contado; no se suma a la existencia actual.','Mínimo y Costo unitario son obligatorios. Costo en CLP por unidad base.','No uses fórmulas ni separadores de miles. Máximo 1.000 filas / 2 MB.','Primero revisa la vista previa y confirma la importación.'])info.addRow([line]);info.getColumn(1).width=100;return Buffer.from(await book.xlsx.writeBuffer());}

@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: litaliano-demo
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    numInstances: 1
+    disk:
+      name: litaliano-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: DATA_DIR
+        value: /var/data
+      - key: DEMO
+        value: "true"
+      - key: SECURE_COOKIES
+        value: "true"
+      - key: DEMO_PASSWORD
+        sync: false
