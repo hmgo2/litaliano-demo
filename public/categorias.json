@@ -1,0 +1,104 @@
+[
+  {
+    "id": "50",
+    "name": "PASTA DEL DIA",
+    "sourceImage": "img/fotos/1/categoria/50.webp",
+    "image": "assets/carta/fotos-1-categoria-50.webp"
+  },
+  {
+    "id": "46",
+    "name": "PIZZAS MEDIANAS",
+    "sourceImage": "img/fotos/1/categoria/46.webp",
+    "image": "assets/carta/fotos-1-categoria-46.webp"
+  },
+  {
+    "id": "31",
+    "name": "PIZZAS GRANDES",
+    "sourceImage": "img/fotos/1/categoria/31.webp",
+    "image": "assets/carta/fotos-1-categoria-31.webp"
+  },
+  {
+    "id": "47",
+    "name": "PIZZAS GRANDES MITAD",
+    "sourceImage": "img/fotos/1/categoria/47.webp",
+    "image": "assets/carta/fotos-1-categoria-47.webp"
+  },
+  {
+    "id": "33",
+    "name": "PASTAS FRESCAS AL HUEVO",
+    "sourceImage": "img/fotos/1/categoria/33.webp",
+    "image": "assets/carta/fotos-1-categoria-33.webp"
+  },
+  {
+    "id": "34",
+    "name": "PASTAS FRESCAS SIN HUEVO",
+    "sourceImage": "img/fotos/1/categoria/34.webp",
+    "image": "assets/carta/fotos-1-categoria-34.webp"
+  },
+  {
+    "id": "35",
+    "name": "SALSAS",
+    "sourceImage": "img/fotos/defaultbackcategoria.jpg",
+    "image": "assets/carta/fotos-defaultbackcategoria.jpg"
+  },
+  {
+    "id": "38",
+    "name": "PLATOS",
+    "sourceImage": "img/fotos/1/categoria/38.webp",
+    "image": "assets/carta/fotos-1-categoria-38.webp"
+  },
+  {
+    "id": "54",
+    "name": "LASAGNAS SERVIR",
+    "sourceImage": "img/fotos/defaultbackcategoria.jpg",
+    "image": "assets/carta/fotos-defaultbackcategoria.jpg"
+  },
+  {
+    "id": "53",
+    "name": "LASAGNAS LLEVAR",
+    "sourceImage": "img/fotos/defaultbackcategoria.jpg",
+    "image": "assets/carta/fotos-defaultbackcategoria.jpg"
+  },
+  {
+    "id": "42",
+    "name": "PEDIDOS - CANNELLONI",
+    "sourceImage": "img/fotos/defaultbackcategoria.jpg",
+    "image": "assets/carta/fotos-defaultbackcategoria.jpg"
+  },
+  {
+    "id": "39",
+    "name": "ENSALADAS",
+    "sourceImage": "img/fotos/1/categoria/39.webp",
+    "image": "assets/carta/fotos-1-categoria-39.webp"
+  },
+  {
+    "id": "52",
+    "name": "SANDWICH",
+    "sourceImage": "img/fotos/defaultbackcategoria.jpg",
+    "image": "assets/carta/fotos-defaultbackcategoria.jpg"
+  },
+  {
+    "id": "36",
+    "name": "SALADOS",
+    "sourceImage": "img/fotos/1/categoria/36.webp",
+    "image": "assets/carta/fotos-1-categoria-36.webp"
+  },
+  {
+    "id": "37",
+    "name": "DULCES",
+    "sourceImage": "img/fotos/1/categoria/37.webp",
+    "image": "assets/carta/fotos-1-categoria-37.webp"
+  },
+  {
+    "id": "40",
+    "name": "LIQUIDOS",
+    "sourceImage": "img/fotos/1/categoria/40.webp",
+    "image": "assets/carta/fotos-1-categoria-40.webp"
+  },
+  {
+    "id": "43",
+    "name": "AGR. PIZZA",
+    "sourceImage": "img/fotos/defaultbackcategoria.jpg",
+    "image": "assets/carta/fotos-defaultbackcategoria.jpg"
+  }
+]

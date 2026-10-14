@@ -1,0 +1,8 @@
+L’Italiano · Carta tactil completa · revision local del 11-10-2026
+
+Abrir index.html en navegador conservando assets al lado. No necesita conexion para consultar la carta y preparar solicitudes locales.
+206 productos y 17 categorias recuperados de https://litaliano.fogom.app/; catalogo.json y categorias.json conservan origen, IDs, precios y textos. Se incluyen las 51 capturas aportadas para contraste.
+52 archivos de imagen originales descargados: imagenes asignadas a 39 productos, imagenes de categoria y recursos genericos de la carta. Cada tarjeta indica si muestra foto del producto, categoria o ilustracion. No se generan fotos ficticias de platos.
+Cartel y Benvenuti restaurados con transparencia; Cormorant Garamond local, licencia incluida.
+Selector provisional de 15 mesas. Hacer pedido y Llamar al garzon preparan solicitudes locales; no se envian al personal. La app y su conexion se desarrollaran en la siguiente etapa.
+Prueba: Pasta Bolognesa ($6.900) + Tartaleta di manzana ($3.300) + Limonada natural en vaso ($4.500) = $14.700. Escoger Mesa 2 habilita pedido y llamado.

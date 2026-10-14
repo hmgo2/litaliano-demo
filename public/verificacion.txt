@@ -1,0 +1,8 @@
+11-10-2026
+206 IDs unicos, 17 categorias, todos con nombre, precio entero positivo e imagen local existente. 52 imagenes originales descargadas sin errores.
+Precios de las 18 pizzas medianas previas coinciden con la fuente actual.
+Filtros de las 17 categorias verificados por ejecucion; busqueda Torcetti devuelve dos articulos, seis unidades $3.900.
+VM: pedido sin mesa rechazado, pedido mixto $14.700, persistencia local, pedidos y llamados sin duplicados, cantidades editables.
+Navegador real: carta completa visible, pastas y fotos cargadas, filtro por categorias, detalle de Gnocchi Sardi, carrito mixto pasta/postre/bebida $14.700, duplicar pasta total $21.600 y restaurar cantidad; elegir Mesa 2 habilita Hacer pedido y Llamar al garzon. Seleccion de prueba vaciada al finalizar.
+Disenos revisados a 1440x900, 820x1080 y 390x844; sin desbordamiento horizontal. Tablet dos columnas, telefono una. Logo combinado y Benvenuti cargados. Capturas de comprobacion en outputs.
+La app del personal aun no existe en esta entrega; solicitudes locales, sin cobros, sin publicacion.
